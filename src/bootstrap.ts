@@ -25,7 +25,7 @@ export async function bootstrap(): Promise<void> {
         
         // Login to the Discord Client
         logger.debug("Logging into Discord..");
-        await client.login(process.env.BOT_TOKEN);
+        client.login(process.env.BOT_TOKEN);
     } catch (error) {
         logger.error("Failed to bootstrap bot:", error);
     }

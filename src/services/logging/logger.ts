@@ -9,7 +9,19 @@ const colors = {
     DEBUG: "\u001B[38;2;0;191;255m",
     SUCCESS: "\u001B[38;2;50;205;50m",
     TRACE: "\u001B[38;2;255;165;0m",
+    VERBOSE: "\u001B[38;2;255;183;193m",
     NONE: ""
+};
+
+const messageColors: Record<LogLevel, string> = {
+    INFO: colors.RESET,
+    WARN: colors.RESET,
+    ERROR: "\u001B[38;2;255;160;122m",
+    DEBUG: colors.RESET,
+    SUCCESS: "\u001B[38;2;180;255;180m",
+    TRACE: colors.RESET,
+    VERBOSE: "\u001B[38;2;130;130;130m",
+    NONE: "\u001B[0m"
 };
 
 /**
@@ -22,7 +34,7 @@ const colors = {
  * - `SUCCESS`: Messages indicating successful operations.
  * - `NONE`: No logging; used to disable logging.
  */
-export type LogLevel = "INFO" | "WARN" | "ERROR" | "DEBUG" | "TRACE" | "SUCCESS" | "NONE";
+export type LogLevel = "INFO" | "WARN" | "ERROR" | "DEBUG" | "TRACE" | "SUCCESS" | "NONE" | "VERBOSE";
 
 /**
  * Defines the priority of each log level.
@@ -42,7 +54,8 @@ const LogLevelPriority: Record<LogLevel, number> = {
     INFO: 3,
     SUCCESS: 3,
     DEBUG: 4,
-    TRACE: 5
+    TRACE: 5,
+    VERBOSE: 6
 };
 
 /**
@@ -130,7 +143,8 @@ export class Logger {
     protected formatColoredMessage(level: LogLevel, message: string): string {
         const timestamp = new Date().toISOString();
         const color = colors[level] || colors.INFO
-        return `${colors.RESET}${timestamp} [${color}${level}${colors.RESET}] ${message}`
+        const messageColor = messageColors[level] || colors.RESET
+        return `${colors.RESET}${timestamp} [${color}${level}${colors.RESET}]${messageColor} ${message}${colors.RESET}`
     }
 
     /**
@@ -257,6 +271,15 @@ export class Logger {
         const { options, messages } = this.handleLogArgs(args);
         const msg = await this.log("TRACE", options.file, ...messages);
         console.trace(msg);
+    }
+
+    /**
+     * Logs a success message.
+     * @param args The message arguments.
+     */
+    public verbose(...args: unknown[]): void {
+        const { options, messages } = this.handleLogArgs(args);
+        this.log("VERBOSE", options.file, ...messages);
     }
 
 }
