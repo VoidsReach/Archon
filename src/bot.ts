@@ -1,5 +1,6 @@
 import { bootstrap, client } from "./bootstrap";
-import { registerAllEvents } from "./handlers/eventRegistry";
+import { initializeCommands } from "./handlers/commandHandler";
+import { registerAllEvents } from "./handlers/eventHandler";
 import { serviceManager } from "./services/serviceManager";
 
 (async () => {
@@ -9,6 +10,10 @@ import { serviceManager } from "./services/serviceManager";
 
         // Register all events
         registerAllEvents(client);
+
+        // Register all bot prefixed commands
+        initializeCommands()
+
     } catch (error) {
         console.error('Failed to start the bot: ', error);
     }
