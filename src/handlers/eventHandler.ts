@@ -29,7 +29,7 @@ export function registerAllEvents(client: Client): void {
         }
         totalEvents += events.length;
     }
-    serviceManager.getLogger().info(
+    serviceManager.getLogger().success(
         `Registered ${totalModules} event modules with a total of ${totalEvents} events.`
     );
 }

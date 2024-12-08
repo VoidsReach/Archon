@@ -12,5 +12,5 @@ export function initializeCommands(): void {
         new CommandClass();
     }
 
-    serviceManager.getLogger().info(`Registered ${commandRegistry.size} commands`);
+    serviceManager.getLogger().success(`Registered ${commandRegistry.size} commands`);
 }
