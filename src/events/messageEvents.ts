@@ -1,6 +1,7 @@
 import { Interaction, Message } from "discord.js"
 import { Event } from "src/decorators"
 import { commandRegistry } from "src/decorators/command";
+import { slashCommands } from "src/handlers/slashHandler";
 import { serviceManager } from "src/services/serviceManager";
 
 const logger = serviceManager.getLogger();
@@ -34,7 +35,24 @@ export default class MessageEvents {
 
     @Event('interactionCreate')
     async onInteraction(interaction: Interaction): Promise<void> {
+        if (!interaction.isCommand()) return;
 
+        const command = slashCommands.find((cmd) => cmd.name === interaction.commandName);
+        if (!command) {
+            await interaction.reply({ content: "Command not found!", ephemeral: true });
+            logger.debug("Failed command attempted: ${}")
+            return;
+        }
+
+        try {
+            await command.run(interaction.client, interaction);
+        } catch (error) {
+            logger.error(`Error executing "${command.name}": ${error}`);
+            await interaction.reply({
+                content: "An error occurred while executing the command.",
+                ephemeral: true
+            });
+        }
     }
        
 }
