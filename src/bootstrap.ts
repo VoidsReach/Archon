@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { Client, GatewayIntentBits } from "discord.js";
+import { serviceManager } from "./services/serviceManager";
 
 // Initialize client instance
 export const client = new Client({
@@ -17,7 +18,7 @@ export async function bootstrap(): Promise<void> {
     try {
         console.log("Bootstrapping Archon...");
 
-        // TODO
+        await serviceManager.initialize(client);
 
         console.log("Logging into Discord...");
         client.login(process.env.BOT_TOKEN);  
