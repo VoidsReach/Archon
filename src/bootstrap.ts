@@ -14,16 +14,19 @@ export const client = new Client({
     ]
 });
 
+const logger = serviceManager.getLogger();
+
 export async function bootstrap(): Promise<void> {
+    logger.info("Bootstrapping Archon...")
     try {
-        console.log("Bootstrapping Archon...");
-
+        // Initialize Managed Services
+        logger.debug("Initializing Service Manager..");
         await serviceManager.initialize(client);
-
-        console.log("Logging into Discord...");
-        client.login(process.env.BOT_TOKEN);  
-        console.log("Login successful");   
+        
+        // Login to the Discord Client
+        logger.debug("Logging into Discord..");
+        await client.login(process.env.BOT_TOKEN);
     } catch (error) {
-        console.error("Failed to bootstrap bot:", error);
+        logger.error("Failed to bootstrap bot:", error);
     }
-} 
+}

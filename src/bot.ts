@@ -1,12 +1,10 @@
 import { bootstrap } from "./bootstrap";
-
+import { serviceManager } from "./services/serviceManager";
 
 (async () => {
     try {
-        // TODO
-
-        await bootstrap()
-        console.log("Bootstrap complete");
+        await bootstrap();
+        serviceManager.getLogger().success("Archon Bootrap Complete");
     } catch (error) {
         console.error('Failed to start the bot: ', error);
     }

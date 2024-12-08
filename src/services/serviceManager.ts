@@ -1,4 +1,5 @@
 import { Client } from "discord.js";
+import { Logger } from "./logging/logger";
 
 /**
  * Singleton class responsible for managing and initializing services for the bot.
@@ -7,6 +8,8 @@ class ServiceManager {
 
     private static instance: ServiceManager | null = null;
     private initialized = false;
+
+    private _logger: Logger | null = null;
 
     private client: Client | null = null;
 
@@ -47,6 +50,21 @@ class ServiceManager {
      */
     private async setupClientServices(client: Client): Promise<void> {
         // TODO
+    }
+
+    /**
+     * Retrieves the Logger instance.
+     * Creates a new instance if one does not exist.
+     * @returns {Logger | null} The logger instance.
+     */
+    public getLogger(): Logger {
+        if (!this._logger) {
+            this._logger = new Logger({
+                saveToFile: false,
+                logFilePath: "" // TODO
+            });
+        }
+        return this._logger;
     }
 
 }
