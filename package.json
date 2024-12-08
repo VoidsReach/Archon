@@ -9,7 +9,15 @@
     "dev": "tsx src/bot.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["discord", "bot", "webhooks", "integration", "testing", "space", "api"],
+  "keywords": [
+    "discord",
+    "bot",
+    "webhooks",
+    "integration",
+    "testing",
+    "space",
+    "api"
+  ],
   "author": "VoidsReach Organization",
   "license": "ISC",
   "repository": {
@@ -22,8 +30,7 @@
     "body-parser": "^1.20.3",
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "rcon-client": "^4.2.5"
+    "express": "^4.21.2"
   },
   "devDependencies": {
     "@types/node": "^22.10.1",

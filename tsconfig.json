@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "module": "CommonJS",
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "paths": {
+            "src/*": ["src/*"]
+        },
+        "baseUrl": "./", 
+        "moduleResolution": "node",
+        "strict": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true
+    },
+    "include": ["src/**/*"],            // Include all .ts files in the src folder
+    "exclude": ["node_modules", "dist"] // Exclude node_modules and output
+}
