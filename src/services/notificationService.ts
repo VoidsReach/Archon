@@ -59,32 +59,36 @@ export class NotificationService {
      * @param event The event name (optional).
      * @returns {Promise<TextChannel | null>} The resolved text channel or null if no valid channel is found.
      */
-    private async getChannel(event?: keyof ChannelEvents): Promise<TextChannel | null> {
+    private async getChannels(event?: keyof ChannelEvents): Promise<TextChannel[]> {
         const mappings = this.channelMapper.getChannelMappings();
-        const channelId = event ? mappings.events[event] : mappings.default;
+        const channelIds = event ? mappings.events[event] : mappings.default;
 
-        if (!channelId) {
+        if (!channelIds || channelIds.length === 0) {
             this.logger.warn(`No channel ID found for event "${event || "default"}"`);
-            return null;
+            return [];
         }
 
-        const cachedChannel = this.client.channels.cache.get(channelId);
-        if (cachedChannel?.isTextBased()) {
-            return cachedChannel as TextChannel;
-        }
-
-        try {
-            const fetchedChannel = await this.client.channels.fetch(channelId);
-            if (fetchedChannel?.isTextBased) {
-                return fetchedChannel as TextChannel;
-            } else {
-                this.logger.warn(`NotificationService: Channel with ID ${channelId} is not text-based`);
+        const channels: TextChannel[] = [];
+        for (const channelId of channelIds) {
+            const cachedChannel = this.client.channels.cache.get(channelId);
+            if (cachedChannel?.isTextBased()) {
+                channels.push(cachedChannel as TextChannel);
+                continue;
             }
-        } catch (error) {
-            this.logger.error( `NotificationService: Failed to fetch channel with ID "${channelId}`, error);
-        }
 
-        return null;
+            try {
+                const fetchedChannel = await this.client.channels.fetch(channelId);
+                if (fetchedChannel?.isTextBased) {
+                    channels.push(fetchedChannel as TextChannel);
+                } else {
+                    this.logger.warn(`NotificationService: Channel with ID ${channelId} is not text-based`);
+                }
+            } catch (error) {
+                this.logger.error( `NotificationService: Failed to fetch channel with ID "${channelId}`, error);
+            }
+        }
+        
+        return channels;
     }
 
     /**
@@ -95,12 +99,12 @@ export class NotificationService {
      * @param options The announcement options.
      */
     public async sendAnnouncement(event: keyof ChannelEvents | undefined, options: AnnouncementOptions): Promise<void> {
-        const channel = await this.getChannel(event);
+        const channels = await this.getChannels(event);
 
-        if (!channel) {
-           this.logger.warn(`NotificationSevice: No valid channel found for event "${event || "default"}"`);
-           return;
-        }
+        if (channels.length === 0) {
+            this.logger.warn(`NotificationSevice: No valid channels found for event "${event || "default"}"`);
+            return;
+         }
 
         const embed = new EmbedBuilder().setColor(options.color || 0x00ff00);
 
@@ -133,14 +137,17 @@ export class NotificationService {
             embed.setTimestamp();
         }
 
-        try {
-            await channel.send({ embeds: [embed] });
-        } catch (error) {
-            this.logger.error("NotificationService: Unexpected error while sending message.", {
-                event,
-                channel,
-                error
-            });
+        for (const channel of channels) {
+            try {
+                this.logger.verbose(`Sending announcement to channel ${channel}`)
+                await channel.send({ embeds: [embed] });
+            } catch (error) {
+                this.logger.error("NotificationService: Unexpected error while sending message.", {
+                    event,
+                    channel,
+                    error
+                });
+            }
         }
     }
 
@@ -152,21 +159,23 @@ export class NotificationService {
      * @param message The message content
      */
     public async sendMessage(event: keyof ChannelEvents | undefined, message: string): Promise<void> {
-        const channel = await this.getChannel(event);
+        const channels = await this.getChannels(event);
 
-        if (!channel) {
-            this.logger.warn(`NotificationService: No valid channel found for event "${event || "default"}"`);
+        if (channels.length === 0) {
+            this.logger.warn(`NotificationService: No valid channels found for event "${event || "default"}"`);
             return;
         }
 
-        try {
-            await channel.send(message);
-        } catch (error) {
-            this.logger.error("NotificationService: Unexpected error while sending message.", {
-                event,
-                channel,
-                error
-            });
+        for (const channel of channels) {
+            try {
+                await channel.send(message);
+            } catch (error) {
+                this.logger.error("NotificationService: Unexpected error while sending message.", {
+                    event,
+                    channel,
+                    error
+                });
+            }
         }
     }
 

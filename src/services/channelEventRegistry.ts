@@ -4,13 +4,13 @@ import { Logger } from "./logging/logger";
 
 /**
  * Represents the event-channel mappings for the bot, handling default values,
- * file-based persistence, and runtime modifications.
+ * file-based persistence, and runtime modifications
  */
 export type ChannelEvents = {
-    log_event: string;
-    server_announcement: string;
-    dev_commands: string,
-    clockify_events: string;
+    log_event: string[];
+    server_announcement: string[];
+    dev_commands: string[],
+    clockify_events: string[];
 }
 
 /**
@@ -20,12 +20,12 @@ interface ChannelMappings {
     /** Mapping of specific events to their respective channel IDs */
     events: ChannelEvents;
     /** Default channel ID */
-    default: string;
+    default: string[];
 }
 
 /**
  * Service responsible for managing channel mappings, including loading, resetting,
- * and overriding channel configurations. Mappings are persisted in a JSON file.
+ * and overriding channel configurations. Mappings are persisted in a JSON file
  */
 export class ChannelMappingService {
     private readonly filePath: string = path.resolve("./config/channelMappings.json");
@@ -39,101 +39,90 @@ export class ChannelMappingService {
 
         this.defaultChannelMappings = {
             events: {
-                log_event: process.env.LOG_CHANNEL_ID || "",
-                server_announcement: process.env.ANNOUNCEMENT_CHANNEL_ID || "",
-                clockify_events: process.env.CLOCKIFY_CHANNEL_ID || "",
-                dev_commands: process.env.DEV_COMMANDS_CHANNEL_ID || "",
+                log_event: process.env.LOG_CHANNEL_ID?.split(",") || [],
+                server_announcement: process.env.ANNOUNCEMENT_CHANNEL_ID?.split(",") || [],
+                clockify_events: process.env.CLOCKIFY_CHANNEL_ID?.split(",") || [],
+                dev_commands: process.env.DEV_COMMANDS_CHANNEL_ID?.split(",") || [],
             },
-            default: process.env.DEFAULT_CHANNEL_ID || ""
+            default: process.env.DEFAULT_CHANNEL_ID?.split(",") || []
         };
 
         this.currentMappings = this.initializeChannelMappings();
     }
 
     /**
-     * Initializes the channel mappings file with default values if it does not already exist.
-     * Ensures that all required mappings are present in the environment variables.
+     * Initializes the channel mappings file with default values if it does not already exist
+     * Ensures that all required mappings are present in the environment variables
      *
-     * @throws If required environment variables for default mappings are missing.
+     * @throws If required environment variables for default mappings are missing
      */
     private initializeChannelMappings(): ChannelMappings {
-        let fileMappings: ChannelMappings | null = null;
-
         if (fs.existsSync(this.filePath)) {
             try {
                 const data = fs.readFileSync(this.filePath, "utf-8");
-                fileMappings = JSON.parse(data);
+                return JSON.parse(data);
             } catch (error) {
                 this.logger.error("Failed to read channel mappings file. Falling back to defaults:", error);
             }
+            this.logger.verbose("Channel mappings already exist. Skipping defaults...");
+            return { ...this.defaultChannelMappings };
         }
 
-        const mergedMappings = {
-            events: {
-                log_event: fileMappings?.events?.log_event || this.defaultChannelMappings.events.log_event,
-                server_announcement: fileMappings?.events?.server_announcement || this.defaultChannelMappings.events.server_announcement,
-                clockify_events: fileMappings?.events?.clockify_events || this.defaultChannelMappings.events.clockify_events, // Ensure new default gets added
-                dev_commands: fileMappings?.events?.dev_commands || this.defaultChannelMappings.events.dev_commands,
-            },
-            default: fileMappings?.default || this.defaultChannelMappings.default,
-        };
-
-        if (!fileMappings || JSON.stringify(fileMappings) !== JSON.stringify(mergedMappings)) {
-            this.saveMappingsToFile(mergedMappings);
-        } 
-        
-        return mergedMappings;
+        this.logger.debug("Channel mappings file not found. Generating default...");    
+        fs.mkdirSync(path.dirname(this.filePath), { recursive: true });
+        this.saveMappingsToFile(this.defaultChannelMappings);
+        return { ...this.defaultChannelMappings };
     }
 
     /**
-     * Saves the current in-memory mappings to the JSON file.
-     * @param mappings The channel mappings to save.
+     * Saves the current in-memory mappings to the JSON file
+     * @param mappings The channel mappings to save
      */
     private saveMappingsToFile(mappings: ChannelMappings): void {
         try {
             fs.writeFileSync(this.filePath, JSON.stringify(mappings, null, 4));
-            this.logger.debug("Channel mappings saved to file.");
+            this.logger.verbose("Channel mappings saved to file.");
         } catch (error) {
             this.logger.error("Failed to save channel mappings to file:", error);
         }
     }
 
     /**
-     * Gets the current in-memory channel mappings.
-     * @returns The current channel mappings.
+     * Gets the current in-memory channel mappings
+     * @returns The current channel mappings
      */
     public getChannelMappings(): ChannelMappings {
         return this.currentMappings;
     }
 
     /**
-     * Overrides the channel for a specific event.
-     * @param event The event to override.
-     * @param channelId The new channel ID.
+     * Overrides the channel for a specific event
+     * @param event The event to override
+     * @param channelId The new channel ID
      */
-    public overrideEventChannel(event: keyof ChannelEvents, channelId: string): void {
-        this.currentMappings.events[event] = channelId;
+    public overrideEventChannel(event: keyof ChannelEvents, channelIds: string[]): void {
+        this.currentMappings.events[event] = channelIds;
         this.saveMappingsToFile(this.currentMappings);
-        this.logger.info(`Channel ID for event "${event}" overridden to "${channelId}".`);
+        this.logger.info(`Channel ID for event "${event}" overridden to "${channelIds.join(", ")}"`);
     }
 
     /**
-     * Resets the channel mapping for a specific event to its default value.
+     * Resets the channel mapping for a specific event to its default value
      *
-     * @param event - The name of the event whose channel should be reset.
-     * @throws If the specified event does not exist in the default mappings.
+     * @param event - The name of the event whose channel should be reset
+     * @throws If the specified event does not exist in the default mappings
      */
     public resetEventChannel(event: keyof ChannelEvents): void {
         if (!this.defaultChannelMappings.events[event]) {
             throw new Error(`Event: "${event}" does not exist in default mappings`)
         }
         this.currentMappings.events[event] = this.defaultChannelMappings.events[event];
-        fs.writeFileSync(this.filePath, JSON.stringify(this.currentMappings, null, 4));
+        this.saveMappingsToFile(this.currentMappings);
         this.logger.info(`Channel ID for event "${event}" reset to default`);
     }
 
     /**
-     * Resets all channel mappings to their default values.
+     * Resets all channel mappings to their default values
      */
     public resetAllMappings(): void {
         this.currentMappings = { ...this.defaultChannelMappings };
