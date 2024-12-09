@@ -2,6 +2,7 @@ import { Client } from "discord.js";
 import { Logger } from "./logging/logger";
 import { NotificationService } from "./notificationService";
 import { ChannelMappingService } from "./channelEventRegistry";
+import ClockifyService from "./integrations/clockifyService";
 
 /**
  * Singleton class responsible for managing and initializing services for the bot.
@@ -10,12 +11,14 @@ class ServiceManager {
 
     private static instance: ServiceManager | null = null;
     private initialized = false;
+    private initializedClient = false;
 
     private _logger: Logger | null = null;
 
     private client: Client | null = null;
-    private notificationService: NotificationService | null = null;
     private channelMapper: ChannelMappingService | null = null;
+
+    private clockifyService: ClockifyService | null = null;
 
     private constructor() {};
 
@@ -37,14 +40,22 @@ class ServiceManager {
      * @returns {Promise<void>} A promise that resolves once initialization is complete.
      */
     public async initialize(client: Client): Promise<void> {
+        if (this.initialized) {
+            throw new Error('Cannot re-initialize Service Manager')
+        }
+
         this.client = client;
+
+        await this.setupApiServices();
 
         // Client ready bootstrap
         client.once("ready", async () => {
             await this.setupClientServices(client);
-            this.initialized = true;
+            this.initializedClient = true;
             this._logger?.success("ServiceManager: All client services initialized!");
         });
+
+        this.initialized = true;
     }
 
     /**
@@ -54,8 +65,8 @@ class ServiceManager {
      * @param {Client} client - The Discord.js client instance.
      */
     private async setupClientServices(client: Client): Promise<void> {
-        if (this.initialized) {
-            throw new Error("Services have already been initialized");
+        if (this.initializedClient) {
+            throw new Error("Client Services have already been initialized");
         }
 
         // Channel Mapping Service
@@ -69,6 +80,14 @@ class ServiceManager {
     }
 
     /**
+     * Internal method to set up API services
+     */
+    private async setupApiServices(): Promise<void> {
+        const clockifyApiKey = process.env.CLOCKIFY_API_KEY || '';
+        this.clockifyService = new ClockifyService(clockifyApiKey);
+    }
+
+    /**
      * Retrieves the global Client instance.
      * Throws an error if the client is not initialized.
      * @returns {Client | null} The client instance.
@@ -78,6 +97,13 @@ class ServiceManager {
             throw new Error("ServiceManager: Cannot access client before initialized");
         }
         return this.client;
+    }
+
+    public getClockifyService(): ClockifyService {
+        if (!this.clockifyService) {
+            throw new Error("ServiceManager: Cannot access clockify service before initialized");
+        }
+        return this.clockifyService;
     }
 
     /**
@@ -98,10 +124,10 @@ class ServiceManager {
      * @returns {NotificationService | null} The notification service instance.
      */
     public getNotificationService(): NotificationService {
-        if (!this.initialized || !this.notificationService) {
+        if (!this.initialized) {
            throw new Error("ServiceManager: Cannot access notification service before client is initialized");
         }
-        return this.notificationService;
+        return NotificationService.getInstance();
     }
 
     /**

@@ -24,10 +24,6 @@ import router from "./services/webhooks";
         // Initialize webhook routes
         const app = express();
         app.use(express.json());
-        app.use((req, res, next) => {
-            serviceManager.getLogger().verbose(`Received Request: ${req.method} ${req.url}`);
-            next();
-        })
         app.use('/webhook', router);
         app.listen(3030, () => serviceManager.getLogger().info("Bot is listening for webhooks on port 3030"));
     } catch (error) {

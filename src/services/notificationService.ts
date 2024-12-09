@@ -10,11 +10,12 @@ interface NotificationConfig {
 
 // TODO validation
 interface AnnouncementOptions {
-    title: string;
-    description: string;
-    fields?: { name: string; value: string }[];
+    title?: string | "";
+    description?: string | "";
+    fields?: { name: string; value: string; inline?: boolean }[];
     color?: number;
     footer?: string;
+    iconURL?: string;
     timestamp?: boolean
 }
 
@@ -101,13 +102,31 @@ export class NotificationService {
            return;
         }
 
-        const embed = new EmbedBuilder()
-            .setTitle(options.title)
-            .setDescription(options.description)
-            .setColor(options.color || 0x00ff00);
+        const embed = new EmbedBuilder().setColor(options.color || 0x00ff00);
+
+        if (options.title) {
+            embed.setTitle(options.title);
+        }
+
+        if (options.description) {
+            embed.setDescription(options.description);
+        }
+
+        // Add fields if provided
+        if (options.fields && options.fields.length > 0) {
+            options.fields.forEach((field) => {
+            embed.addFields({ name: field.name, value: field.value, inline: field.inline || false });
+        });
+    }
 
         if (options.footer) {
-            embed.setFooter({ text: options.footer });
+            embed.setFooter({ 
+                text: options.footer 
+            });
+        }
+
+        if (options.iconURL) {
+            embed.setThumbnail(options.iconURL);
         }
 
         if (options.timestamp) {

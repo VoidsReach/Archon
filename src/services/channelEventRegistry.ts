@@ -9,7 +9,8 @@ import { Logger } from "./logging/logger";
 export type ChannelEvents = {
     log_event: string;
     server_announcement: string;
-    game_chat: string;
+    dev_commands: string,
+    clockify_events: string;
 }
 
 /**
@@ -40,7 +41,8 @@ export class ChannelMappingService {
             events: {
                 log_event: process.env.LOG_CHANNEL_ID || "",
                 server_announcement: process.env.ANNOUNCEMENT_CHANNEL_ID || "",
-                game_chat: process.env.GAME_CHAT_CHANNEL_ID || ""
+                clockify_events: process.env.CLOCKIFY_CHANNEL_ID || "",
+                dev_commands: process.env.DEV_COMMANDS_CHANNEL_ID || "",
             },
             default: process.env.DEFAULT_CHANNEL_ID || ""
         };
@@ -55,21 +57,32 @@ export class ChannelMappingService {
      * @throws If required environment variables for default mappings are missing.
      */
     private initializeChannelMappings(): ChannelMappings {
+        let fileMappings: ChannelMappings | null = null;
+
         if (fs.existsSync(this.filePath)) {
             try {
                 const data = fs.readFileSync(this.filePath, "utf-8");
-                return JSON.parse(data);
+                fileMappings = JSON.parse(data);
             } catch (error) {
                 this.logger.error("Failed to read channel mappings file. Falling back to defaults:", error);
             }
-            this.logger.debug("Channel mappings already exist. Skipping defaults...");
-            return { ...this.defaultChannelMappings };
         }
 
-        this.logger.debug("Channel mappings file not found. Generating default...");    
-        fs.mkdirSync(path.dirname(this.filePath), { recursive: true });
-        this.saveMappingsToFile(this.defaultChannelMappings);
-        return { ...this.defaultChannelMappings };
+        const mergedMappings = {
+            events: {
+                log_event: fileMappings?.events?.log_event || this.defaultChannelMappings.events.log_event,
+                server_announcement: fileMappings?.events?.server_announcement || this.defaultChannelMappings.events.server_announcement,
+                clockify_events: fileMappings?.events?.clockify_events || this.defaultChannelMappings.events.clockify_events, // Ensure new default gets added
+                dev_commands: fileMappings?.events?.dev_commands || this.defaultChannelMappings.events.dev_commands,
+            },
+            default: fileMappings?.default || this.defaultChannelMappings.default,
+        };
+
+        if (!fileMappings || JSON.stringify(fileMappings) !== JSON.stringify(mergedMappings)) {
+            this.saveMappingsToFile(mergedMappings);
+        } 
+        
+        return mergedMappings;
     }
 
     /**
