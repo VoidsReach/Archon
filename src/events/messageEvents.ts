@@ -28,9 +28,7 @@ export default class MessageEvents {
 
         if (command && commandRegistry.has(command)) {
             commandRegistry.get(command)?.(message, args);
-        } else {
-            message.reply(`Unknown command: ${command}`);
-        }
+        } // ignore incorrect commands
     }
 
     @Event('interactionCreate')
