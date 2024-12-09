@@ -6,7 +6,7 @@ import { Client, GatewayIntentBits } from "discord.js";
 import { serviceManager } from "./services/serviceManager";
 
 // Initialize client instance
-export const client = new Client({
+const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,

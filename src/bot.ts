@@ -1,10 +1,10 @@
-import { bootstrap, client } from "./bootstrap";
+import { bootstrap } from "./bootstrap";
 import { initializeCommands } from "./handlers/commandHandler";
 import { registerAllEvents } from "./handlers/eventHandler";
 import { loadSlashCommands, registerSlashCommands, slashCommands } from "./handlers/slashHandler";
 import { serviceManager } from "./services/serviceManager";
 import express from 'express';
-import router from "./webhooks";
+import router from "./services/webhooks";
 
 (async () => {
     try {
@@ -16,7 +16,7 @@ import router from "./webhooks";
         await registerSlashCommands(slashCommands);
 
         // Register all events
-        registerAllEvents(client);
+        registerAllEvents(serviceManager.getClient());
 
         // Register all bot prefixed commands
         initializeCommands()
@@ -24,6 +24,10 @@ import router from "./webhooks";
         // Initialize webhook routes
         const app = express();
         app.use(express.json());
+        app.use((req, res, next) => {
+            serviceManager.getLogger().verbose(`Received Request: ${req.method} ${req.url}`);
+            next();
+        })
         app.use('/webhook', router);
         app.listen(3030, () => serviceManager.getLogger().info("Bot is listening for webhooks on port 3030"));
     } catch (error) {

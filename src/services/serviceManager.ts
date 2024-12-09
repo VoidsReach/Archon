@@ -1,5 +1,7 @@
 import { Client } from "discord.js";
 import { Logger } from "./logging/logger";
+import { NotificationService } from "./notificationService";
+import { ChannelMappingService } from "./channelEventRegistry";
 
 /**
  * Singleton class responsible for managing and initializing services for the bot.
@@ -12,6 +14,8 @@ class ServiceManager {
     private _logger: Logger | null = null;
 
     private client: Client | null = null;
+    private notificationService: NotificationService | null = null;
+    private channelMapper: ChannelMappingService | null = null;
 
     private constructor() {};
 
@@ -39,6 +43,7 @@ class ServiceManager {
         client.once("ready", async () => {
             await this.setupClientServices(client);
             this.initialized = true;
+            this._logger?.success("ServiceManager: All client services initialized!");
         });
     }
 
@@ -49,7 +54,54 @@ class ServiceManager {
      * @param {Client} client - The Discord.js client instance.
      */
     private async setupClientServices(client: Client): Promise<void> {
-        // TODO
+        if (this.initialized) {
+            throw new Error("Services have already been initialized");
+        }
+
+        // Channel Mapping Service
+        this.channelMapper = new ChannelMappingService(this.getLogger());
+
+        // Notification Service
+        NotificationService.initialize({
+            client: client,
+            channelMapper: this.channelMapper
+        });
+    }
+
+    /**
+     * Retrieves the global Client instance.
+     * Throws an error if the client is not initialized.
+     * @returns {Client | null} The client instance.
+     */
+    public getClient(): Client {
+        if (!this.client) {
+            throw new Error("ServiceManager: Cannot access client before initialized");
+        }
+        return this.client;
+    }
+
+    /**
+     * Retrieves the ChannelMappingService instance.
+     * Throws an error if the client is not initialized.
+     * @returns {ChannelMappingService | null} The channel mapping service instance.
+     */
+     public getChannelMappingService(): ChannelMappingService {
+        if (!this.channelMapper) {
+            throw new Error("ServiceManager: ChannelMappingsService is not initialized");
+        }
+        return this.channelMapper;
+    }
+
+    /**
+     * Retrieves the NotificationService instance.
+     * Throws an error if the client is not initialized.
+     * @returns {NotificationService | null} The notification service instance.
+     */
+    public getNotificationService(): NotificationService {
+        if (!this.initialized || !this.notificationService) {
+           throw new Error("ServiceManager: Cannot access notification service before client is initialized");
+        }
+        return this.notificationService;
     }
 
     /**
