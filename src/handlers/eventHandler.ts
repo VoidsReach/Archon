@@ -4,7 +4,7 @@ import { Client } from "discord.js";
 import { eventRegistry } from "src/decorators/event";
 import { serviceManager } from "src/services/serviceManager";
 
-export const eventClasses = [GeneralEvents, MessageEvents];
+const eventClasses = [GeneralEvents, MessageEvents];
 
 /**
  * Register all events from the centralized registry

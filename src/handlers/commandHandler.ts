@@ -2,7 +2,7 @@ import { DevCommands } from "src/commands/devCommands";
 import { commandRegistry } from "src/decorators/command";
 import { serviceManager } from "src/services/serviceManager";
 
-export const commandClasses = [DevCommands];
+const commandClasses = [DevCommands];
 
 /**
  * Initialize and register all commands.

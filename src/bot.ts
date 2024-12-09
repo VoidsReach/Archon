@@ -2,9 +2,9 @@ import { bootstrap } from "./bootstrap";
 import { initializeCommands } from "./handlers/commandHandler";
 import { registerAllEvents } from "./handlers/eventHandler";
 import { loadSlashCommands, registerSlashCommands, slashCommands } from "./handlers/slashHandler";
+import { registerWebhooks } from "./handlers/webhookHandler";
 import { serviceManager } from "./services/serviceManager";
-import express from 'express';
-import router from "./services/webhooks";
+import express, { Router } from 'express';
 
 (async () => {
     try {
@@ -23,9 +23,16 @@ import router from "./services/webhooks";
 
         // Initialize webhook routes
         const app = express();
+        const webhookRouter = Router();
+        const webhookPort = process.env.WEBHOOK_PORT || 3030;
+
         app.use(express.json());
-        app.use('/webhook', router);
-        app.listen(3030, () => serviceManager.getLogger().info("Bot is listening for webhooks on port 3030"));
+        registerWebhooks(webhookRouter);
+
+        app.use('/webhook', webhookRouter);
+        app.listen(webhookPort, () => serviceManager
+            .getLogger()
+            .info(`Bot is listening for webhooks on port: ${webhookPort}`));
     } catch (error) {
         console.error('Failed to start the bot: ', error);
     }
