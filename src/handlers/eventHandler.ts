@@ -1,8 +1,8 @@
-import GeneralEvents from "src/events/generalEvents";
-import MessageEvents from "src/events/messageEvents";
+import GeneralEvents from "../events/generalEvents";
+import MessageEvents from "../events/messageEvents";
 import { Client } from "discord.js";
-import { eventRegistry } from "src/decorators/event";
-import { serviceManager } from "src/services/serviceManager";
+import { eventRegistry } from "../decorators/event";
+import { serviceManager } from "../services/serviceManager";
 
 const eventClasses = [GeneralEvents, MessageEvents];
 

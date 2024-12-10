@@ -1,8 +1,8 @@
 import { Interaction, Message } from "discord.js"
-import { Event } from "src/decorators"
-import { commandRegistry } from "src/decorators/command";
-import { slashCommands } from "src/handlers/slashHandler";
-import { serviceManager } from "src/services/serviceManager";
+import { Event } from "../decorators"
+import { commandRegistry } from "../decorators/command";
+import { slashCommands } from "../handlers/slashHandler";
+import { serviceManager } from "../services/serviceManager";
 
 const logger = serviceManager.getLogger();
 

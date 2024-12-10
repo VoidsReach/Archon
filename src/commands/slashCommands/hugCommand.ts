@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType } from "discord.js";
-import { serviceManager } from "src/services/serviceManager";
+import { serviceManager } from "../../services/serviceManager";
 
 /**
  * Slash command: Hug

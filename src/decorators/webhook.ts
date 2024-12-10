@@ -1,4 +1,4 @@
-import { Request, Response, Router } from "express";
+import { Request, Response } from "express";
 
 export type WebhookHandler = (req: Request, res: Response) => void | Promise<void>;
 type WebhookEntry = { path: string; handler: WebhookHandler };

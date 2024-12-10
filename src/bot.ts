@@ -1,3 +1,4 @@
+import 'module-alias/register';
 import { bootstrap } from "./bootstrap";
 import { initializeCommands } from "./handlers/commandHandler";
 import { registerAllEvents } from "./handlers/eventHandler";

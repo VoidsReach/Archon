@@ -1,5 +1,5 @@
 import { Message } from "discord.js";
-import { Command } from "src/decorators/command";
+import { Command } from "../decorators/command";
 
 export class DevCommands {
 

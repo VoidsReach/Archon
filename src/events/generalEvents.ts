@@ -1,6 +1,6 @@
 import { Client } from "discord.js";
-import { Event } from "src/decorators/event";
-import { serviceManager } from "src/services/serviceManager";
+import { Event } from "../decorators/event";
+import { serviceManager } from "../services/serviceManager";
 
 export default class GeneralEvents {
 
