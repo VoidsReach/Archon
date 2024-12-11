@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { webhookClassRegistry, webhookRegistery } from "src/decorators";
-import { serviceManager } from "src/services/serviceManager";
-import { ClockifyWebhooks } from "src/webhooks/clockify";
+import { webhookClassRegistry, webhookRegistery } from "../decorators";
+import { serviceManager } from "../services/serviceManager";
+import { ClockifyWebhooks } from "../webhooks/clockify";
 
 const webhookClasses = [ClockifyWebhooks];
 

@@ -4,10 +4,10 @@
         "module": "CommonJS",
         "outDir": "./dist",
         "rootDir": "./src",
+        "baseUrl": "./", 
         "paths": {
             "src/*": ["src/*"]
         },
-        "baseUrl": "./", 
         "moduleResolution": "node",
         "strict": true,
         "experimentalDecorators": true,
@@ -16,6 +16,6 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true
     },
-    "include": ["src/**/*"],            // Include all .ts files in the src folder
-    "exclude": ["node_modules", "dist"] // Exclude node_modules and output
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist"]
 }

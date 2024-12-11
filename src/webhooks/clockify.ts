@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { Webhook } from "src/decorators";
-import { serviceManager } from "src/services/serviceManager";
-import { parseDuration } from "src/util/parsing";
+import { Webhook } from "../decorators";
+import { serviceManager } from "../services/serviceManager";
+import { parseDuration } from "../util/parsing";
 
 /**
  * Handles incoming webhook requests from Clockify

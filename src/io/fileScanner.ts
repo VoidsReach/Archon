@@ -1,6 +1,6 @@
 import { readdirSync, statSync } from "fs";
 import path from "path";
-import { serviceManager } from "src/services/serviceManager";
+import { serviceManager } from "../services/serviceManager";
 import { pathToFileURL } from "url";
 
 /**
@@ -9,7 +9,7 @@ import { pathToFileURL } from "url";
  */
 export async function importFiles(dir: string): Promise<any[]> {
     const logger = serviceManager.getLogger();
-    const absoluteDir = path.resolve(dir);
+    const absoluteDir = path.resolve(__dirname, dir);
     const files = readdirSync(absoluteDir);
 
     const modules: any[] = [];
@@ -23,7 +23,7 @@ export async function importFiles(dir: string): Promise<any[]> {
         } else if (file.toLowerCase().endsWith('.ts') || file.toLowerCase().endsWith('.js')) {
             try {
                 logger.verbose(`Importing: ${fullPath}`);
-                const module = await import(pathToFileURL(fullPath).href);
+                const module = require(fullPath);
                 modules.push(module.default || module);
             } catch (error) {
                 logger.warn(`Failed to import: ${fullPath}`);

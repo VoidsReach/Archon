@@ -1,5 +1,5 @@
 import { Collection, Message, PermissionResolvable } from "discord.js";
-import { serviceManager } from "src/services/serviceManager";
+import { serviceManager } from "../services/serviceManager";
 
 export const commandRegistry = new Collection<string, (message: Message, args: string[]) =>void>();
 

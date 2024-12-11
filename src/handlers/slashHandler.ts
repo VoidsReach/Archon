@@ -1,7 +1,7 @@
 import { REST, Routes } from "discord.js";
 import { importFiles } from "../io/fileScanner"
-import { serviceManager } from "src/services/serviceManager";
-import { Logger } from "src/services/logging/logger";
+import { serviceManager } from "../services/serviceManager";
+import { Logger } from "../services/logging/logger";
 
 const logger: Logger = serviceManager.getLogger();
 
@@ -12,7 +12,7 @@ export const slashCommands: any[] = [];
  * Validates and stores commands in the `slashCommands` array.
  */
 export async function loadSlashCommands(): Promise<void> {
-    const modules = await importFiles("src/commands/slashCommands");
+    const modules = await importFiles("../commands/slashCommands");
 
     for (const module of modules) {
         if (module.name && module.run) {

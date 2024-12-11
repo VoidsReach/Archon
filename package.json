@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/bot.ts",
+    "start": "node dist/bot.js",
     "dev": "tsx src/bot.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -30,7 +30,8 @@
     "body-parser": "^1.20.3",
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "module-alias": "^2.2.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
@@ -38,5 +39,8 @@
     "nodemon": "^3.1.7",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
+  },
+  "_moduleAliases": {
+    "src": "dist"
   }
 }

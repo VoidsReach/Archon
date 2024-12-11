@@ -1,6 +1,6 @@
-import { DevCommands } from "src/commands/devCommands";
-import { commandRegistry } from "src/decorators/command";
-import { serviceManager } from "src/services/serviceManager";
+import { DevCommands } from "../commands/devCommands";
+import { commandRegistry } from "../decorators/command";
+import { serviceManager } from "../services/serviceManager";
 
 const commandClasses = [DevCommands];
 

@@ -1,5 +1,5 @@
 import { ClientEvents } from "discord.js";
-import { serviceManager } from "src/services/serviceManager";
+import { serviceManager } from "../services/serviceManager";
 
 // Global event class registry
 type EventClass = { new (): any }
